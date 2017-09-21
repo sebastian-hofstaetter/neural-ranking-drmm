@@ -39,7 +39,7 @@ with open(outFilepath, 'w') as outputFile:
                 # write single line output
                 outputFile.write(currentId)
                 outputFile.write(' ')
-                outputFile.write(text)
+                outputFile.write(text.strip())
                 outputFile.write('\n')
                 count = count + 1
 
