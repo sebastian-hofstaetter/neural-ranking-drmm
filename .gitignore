@@ -144,3 +144,4 @@ data/topics.robust04.txt
 data/trec_corpus.stemmed.txt
 data/topics.robust04.stemmed.txt
 data/topic_corpus_histogram_30.txt
+data/5-folds/**
