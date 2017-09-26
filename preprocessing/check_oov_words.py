@@ -51,8 +51,8 @@ with open(sys.argv[2], 'r') as inFile:
 print 'found ', len(wordlist),' oov words'
 if len(wordlist) > 0:
 
-    x = [a[0]+' ('+a[1]+'), ' for a in set(wordlist)]
+    x = [a[0]+' ('+a[1]+')' for a in set(wordlist)]
     x.sort()
-    print ''.join(x)
+    print '\n'.join(x)
 
 print '\n-------\n', checked, ' lines checked'

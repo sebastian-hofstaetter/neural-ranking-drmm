@@ -141,3 +141,6 @@ $RECYCLE.BIN/
 data/trec_corpus.txt
 .idea/
 data/topics.robust04.txt
+data/trec_corpus.stemmed.txt
+data/topics.robust04.stemmed.txt
+data/topic_corpus_histogram_30.txt
