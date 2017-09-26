@@ -1,7 +1,7 @@
 #
 # Trec data to single file transformer
 #
-# Input:  Directory of raw trec corpus data (subdirectory structure possible)
+# Input:  Directory of raw trec corpus data (subdirectory structure possible), optional: "doStem" as 2nd argument if words should be stemmed
 # Output: single file in ../data/trec_corpus.txt
 #         contents: id1 text text text
 #                   id2 text text
@@ -15,9 +15,10 @@ import timeit
 import sys
 import re
 import codecs
+from nltk.stem import *
 
 # make sure the argument is good (0 = the python file, 1 the actual argument)
-if len(sys.argv) != 2 or not os.path.isdir(sys.argv[1]):
+if len(sys.argv) < 2 or not os.path.isdir(sys.argv[1]):
     print 'Needs 1 argument - the trec data directory path!'
     exit(0)
 
@@ -25,6 +26,8 @@ cleanTextRegex = re.compile('[^a-zA-Z]')
 cleanHtmlRegex = re.compile('<[^<]+?>')
 
 docCount = 0
+stemmer = PorterStemmer()
+doStem = len(sys.argv) == 3 and sys.argv[2] == 'doStem'
 
 def handleTrecFile(filename, outputFile):
     """
@@ -59,7 +62,10 @@ def handleTrecFile(filename, outputFile):
                 wordList = []
                 for w in parsed.split(' '):
                     if w:
-                        cleaned = w.lower()
+                        if doStem:
+                            cleaned = stemmer.stem(w.lower().strip())
+                        else:
+                            cleaned = w.lower().strip()
                         wordList.append(cleaned)
                 outputText = ' '.join(wordList)
 
@@ -85,8 +91,11 @@ def handleTrecFile(filename, outputFile):
 #
 count = 0
 start_time = timeit.default_timer()
+outFileName = '../data/trec_corpus.txt'
+if doStem:
+    outFileName = '../data/trec_corpus.stemmed.txt'
 
-with open('../data/trec_corpus.txt', 'w') as outputFile:
+with open(outFileName, 'w') as outputFile:
     for dirpath, dirnames, fileNames in os.walk(sys.argv[1]):
         for file in fileNames:
             handleTrecFile(dirpath + os.sep + file, outputFile)
