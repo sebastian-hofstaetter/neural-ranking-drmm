@@ -15,6 +15,7 @@ import sys
 from gensim.models import Word2Vec
 import numpy as np
 import timeit
+from TextCollection import TextCollection
 
 start_time = timeit.default_timer()
 
@@ -56,6 +57,7 @@ print 'embeddings loaded '
 print 'loading docs ... '
 
 # load trec corpus
+trec_text_collection_data = [] # text 1 string per doc only, no id
 trec_corpus={} # corpus id -> list of doc vector ids
 count = 0
 with open(arg_corpus_file, 'r') as inputFile:
@@ -65,15 +67,21 @@ with open(arg_corpus_file, 'r') as inputFile:
             print '    ', count,' docs loaded'
         parts = line.split(' ', 1)
         trec_corpus[parts[0]] = []
+
+        trec_text_collection_data.append(parts[1])
+
         for w in parts[1].split(' '):
             ws = w.strip()
             if ws in vectors.vocab:
                 trec_corpus[parts[0]].append(vectors.vocab[ws].index)
 
+trec_text_collection = TextCollection(trec_text_collection_data)
+
 print 'all ', count, ' docs loaded'
 
 # load topics file
 trec_topics = {} # topic -> list of query term vector ids
+max_topic_word_count = 0
 with open(arg_topics_file, 'r') as inputFile:
     for line in inputFile:
         parts = line.split(' ', 1)
@@ -86,14 +94,17 @@ with open(arg_topics_file, 'r') as inputFile:
             if ws in vectors.vocab:
                 trec_topics[parts[0]].append(vectors.vocab[ws].index)
 
+        if len(trec_topics[parts[0]]) > max_topic_word_count:
+            max_topic_word_count = len(trec_topics[parts[0]])
+
 print 'all ', len(trec_topics), ' topics loaded'
 
 # load pre-ranked file
-pre_ranked_per_topic = [] # topic -> (doc id, rank)
+pre_ranked_per_topic = [] # (topic, doc id, score)
 with open(arg_preranked_file, 'r') as inputFile:
     for line in inputFile:
-        parts = line.split(' \t ') # pretty strange, but it works
-        pre_ranked_per_topic.append((parts[0], parts[2].strip(), parts[3].strip()))
+        parts = line.split()
+        pre_ranked_per_topic.append((parts[0], parts[2].strip(), parts[4].strip()))
 
 print 'all ', len(pre_ranked_per_topic), ' pre-ranked topics loaded'
 
@@ -101,9 +112,11 @@ print 'creating histograms'
 count = 0
 # create histograms for every query term <-> doc term
 # based on pairs from pre-ranked file, using the similarities of the wordembedding
+
+# histogram file format: topicId DocId prerankscore numberOfTopicWords(N) <hist1> <hist2> ... <histN>
 with open('../data/topic_corpus_histogram_'+str(arg_bin_size)+'.txt', 'w') as outputFile:
 
-    for topic, doc, rank in pre_ranked_per_topic:
+    for topic, doc, score in pre_ranked_per_topic:
             count += 1
             if count % 10000 == 0:
                 print '    ', count, ' ranked docs processed'
@@ -115,7 +128,9 @@ with open('../data/topic_corpus_histogram_'+str(arg_bin_size)+'.txt', 'w') as ou
             topic_vectors = np.array([vectors.word_vec(vectors.index2word[topic_word_ids[i]], True) for i in range(0,len(topic_word_ids))],np.float32)
             doc_vectors = np.array([vectors.word_vec(vectors.index2word[doc_words_ids[i]], True) for i in range(0,len(doc_words_ids))],np.float32)
 
-            outputFile.write(topic+" "+doc+" "+str(len(topic_word_ids))+" ")
+            outputFile.write(topic+" "+doc+" "+str(score)+" "+str(len(topic_word_ids))+" ")
+            for w in topic_word_ids:
+                outputFile.write(str(trec_text_collection.idf(vectors.index2word[w])) + " ")
 
             qnum = len(topic_word_ids)
             d1_embed = topic_vectors
@@ -129,3 +144,4 @@ with open('../data/topic_corpus_histogram_'+str(arg_bin_size)+'.txt', 'w') as ou
             outputFile.flush()
 
 print 'Completed after (seconds): ', timeit.default_timer() - start_time
+print 'Max topic words: ',max_topic_word_count
