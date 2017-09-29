@@ -113,7 +113,7 @@ count = 0
 # create histograms for every query term <-> doc term
 # based on pairs from pre-ranked file, using the similarities of the wordembedding
 
-# histogram file format: topicId DocId prerankscore numberOfTopicWords(N) <hist1> <hist2> ... <histN>
+# histogram file format: topicId DocId prerankscore numberOfTopicWords(N) idf1 idf2 ... idfN <hist1> <hist2> ... <histN>
 with open('../data/topic_corpus_histogram_'+str(arg_bin_size)+'.txt', 'w') as outputFile:
 
     for topic, doc, score in pre_ranked_per_topic:
