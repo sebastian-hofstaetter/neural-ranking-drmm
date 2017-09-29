@@ -8,9 +8,10 @@ import numpy as np
 train_data = load_data('../data/5-folds/30_histogram_fold_1.test')
 
 model = build_keras_model()
-
+model.summary()
 model.compile(loss = rank_hinge_loss, optimizer='adam')
 
+plot_model(model, to_file='model.png', show_shapes=True)
 
 batch_size = 1
 test1 = train_data['653'][0]
@@ -28,10 +29,10 @@ X2[1][1] = test2[3][1]
 X2[1][2] = test2[3][2]
 
 # topic idf
-X1 = np.zeros((batch_size*2, 5), dtype=np.int32)
+X1 = np.zeros((batch_size*2, 5,1), dtype=np.float32)
 
-X1[0] = np.array([1,2,3,4,5],np.float32)
-X1[1] = np.array([6,7,8,9,10],np.float32)
+X1[0] = test1[2]
+X1[1] = test2[2]
 
 # empty label array
 Y = np.zeros((batch_size*2,), dtype=np.int32)
@@ -44,4 +45,3 @@ c1=keras.callbacks.TensorBoard(log_dir='./tensorboard-logs', histogram_freq=0,
 model.fit({'query': X1, 'doc': X2}, Y, 2,callbacks=[c1])
 
 test = 0
-# plot_model(model, to_file='model.png',show_shapes=True)

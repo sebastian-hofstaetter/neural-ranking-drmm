@@ -26,13 +26,13 @@ def load_data(filepath):
 
             numberOfTerms = int(parts[3])
 
-            idfs = []
+            idfs = np.zeros((5,1), np.float32)
             histograms = []
 
             for i in range(numberOfTerms):
-                idfs.append(float(parts[i + 4]))
+                idfs[i] = np.array([float(parts[i + 4])], np.float32)
 
-            idfs = np.array(idfs,np.float32)
+            #idfs = np.array(idfs,np.float32)
 
             for i in range(numberOfTerms + 4, len(parts), histogramsize):
                 hist = []
