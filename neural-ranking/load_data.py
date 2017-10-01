@@ -14,15 +14,15 @@ def load_data(filepath):
     with open(filepath,'r') as inputFile:
         for line in inputFile:
 
-            count+=1
-            #if count == 100:
+            #if count == 2000:
             #   break
+            count+=1
 
             parts = line.strip().split()
             # histogram file format: topicId DocId prerankscore numberOfTopicWords(N) idf1 idf2 .. idfN <hist1> <hist2> ... <histN>
             topicId = parts[0]
             docId = parts[1]
-            score = parts[2]
+            score = float(parts[2])
 
             numberOfTerms = int(parts[3])
 
@@ -46,6 +46,6 @@ def load_data(filepath):
             data_per_topic[topicId].append((docId,score,idfs,histograms))
 
     print('loaded ' + str(count) + ' training data points')
-    return data_per_topic
+    return data_per_topic,count
 
 
