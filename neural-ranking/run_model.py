@@ -1,5 +1,7 @@
 import keras
 import sys
+
+from keras.callbacks import ModelCheckpoint
 from keras.utils import plot_model
 from keras_model import build_keras_model
 from load_data import load_data
@@ -25,7 +27,7 @@ train_data, data_count = load_data(train_file)
 
 model = build_keras_model()
 model.summary()
-model.compile(loss=rank_hinge_loss, optimizer='adam') #adagrad
+model.compile(loss=rank_hinge_loss, optimizer='adam') # adam
 
 #plot_model(model, to_file='model.png', show_shapes=True)
 #
@@ -99,16 +101,24 @@ for topic in train_data:
 #print('X2 shape after resize: ',X2.shape)
 #print('Y shape after resize: ',Y.shape)
 
-c1=keras.callbacks.TensorBoard(log_dir='./tensorboard-logs', histogram_freq=0,
-          write_graph=True, write_images=True)
+if not os.path.exists('tensorboard-logs-'+run_name+'/'):
+    os.makedirs('tensorboard-logs-'+run_name+'/')
 
+#c1=keras.callbacks.TensorBoard(log_dir='tensorboard-logs-'+run_name+'/',
+#                               histogram_freq=0,batch_size=10,
+#                               write_graph=True, write_images=False)
 
-model.fit({'query': X1, 'doc': X2}, Y, batch_size=10, verbose=2, shuffle=False, epochs=500, callbacks=[c1])
 
 if not os.path.exists('models/'):
     os.makedirs('models/')
 
-model.save_weights('models/'+run_name+'.weights')
+c1 = ModelCheckpoint(filepath='/models/temp_'+run_name+'.hdf5', verbose=1, save_best_only=True)
+
+
+model.fit({'query': X1, 'doc': X2}, Y, batch_size=10, verbose=2, shuffle=False, epochs=30, callbacks=[c1])
+
+
+model.save('models/'+run_name+'.model')
 
 #
 #

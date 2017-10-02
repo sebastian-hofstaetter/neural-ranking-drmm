@@ -38,6 +38,8 @@ def load_data(filepath):
                 hist = []
                 for t in range(0, histogramsize):
                     hist.append(float(parts[i + t]))
+                    #if t < 12 and float(parts[i + t]) > 0:
+                    #    print('found hist',float(parts[i + t]),' at ',t,' for topic doc ',topicId, docId)
                 histograms.append(np.array(hist, np.float32))
 
             if topicId not in data_per_topic:
