@@ -22,5 +22,7 @@ with open(filepath_out ,'w') as outFile:
     for topic in sorted(data):
         i = 0
         for tuple in sorted(data[topic],reverse=True):
+            if i == 1000:
+                break
             outFile.write(str(topic)+'\t0\t'+tuple[1]+'\t'+str(i)+'\t'+str(tuple[0])+'\tdrmm\n')
             i+=1

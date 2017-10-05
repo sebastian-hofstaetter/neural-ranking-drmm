@@ -3,13 +3,9 @@ from keras.models import Sequential, Model
 from keras.layers import Input, Embedding, Dense, Activation, Merge, Lambda, Permute
 from keras.layers import Reshape, Dot
 from keras.activations import softmax
-import numpy as np
 
 query_term_maxlen = 5
 hist_size = 30
-# vocab_size = 1000
-# embed_size = 1
-# embed = np.float32(np.random.uniform(-0.2, 0.2, [vocab_size, embed_size]))
 num_layers = 2
 hidden_sizes = [5, 1]
 

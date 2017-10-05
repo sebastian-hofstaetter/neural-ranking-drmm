@@ -2,7 +2,7 @@
 # Histogram generator, for the corpus docs <-> pre-ranked query results
 #   pre-rank gives us pairs of docs <-> topics
 #
-# Input:  ../data/trec_corpus.txt, topics file, pre-ranked 2k file, gensim word embedding model, bin count
+# Input:  ../data/trec_corpus.txt, topics file, pre-ranked 2k file, gensim word embedding model, bin count, 'qrels' or 'prerank'
 # Output: (fixed) ../data/trec_corpus__histogram_<bin count>.txt
 #         contents: topicId docId 1 2 3 8 0 2 3 ...
 #                   topicId docId 1 2 3 8 0 2 3 ...
@@ -36,16 +36,37 @@ def cal_hist(t1_rep, t2_rep, qnum, hist_size):
     return mhist.flatten()
 
 
-# make sure the argument is good (0 = the python file, 1 the actual argument)
-if len(sys.argv) < 6:
-    print 'Needs 5 arguments - see comments for info ...'
+# make sure the argument is good (0 = the python file, 1+ the actual argument)
+if len(sys.argv) < 7:
+    print('Needs 6 arguments - see comments for info ...')
     exit(0)
 
 arg_corpus_file = sys.argv[1]
 arg_topics_file = sys.argv[2]
-arg_preranked_file = sys.argv[3]
+arg_preranked_or_qrel_file = sys.argv[3]
 arg_embedding_file = sys.argv[4]
 arg_bin_size = int(sys.argv[5])
+arg_qrel_or_preranked = sys.argv[6] # qrel or prerank
+
+#
+# load pre-ranked or qrels file
+#
+topic_doc_pairs = [] # (topic, doc id, score) score is 0,1 if qrel
+
+if arg_qrel_or_preranked == 'prerank':
+    with open(arg_preranked_or_qrel_file, 'r') as inputFile:
+        for line in inputFile:
+            parts = line.split()
+            topic_doc_pairs.append((parts[0], parts[2].strip(), parts[4].strip()))
+
+if arg_qrel_or_preranked == 'qrel':
+    with open(arg_preranked_or_qrel_file, 'r') as inputFile:
+        for line in inputFile:
+            parts = line.split()
+            topic_doc_pairs.append((parts[0], parts[2].strip(), parts[3].strip()))
+
+print('all ', len(topic_doc_pairs), ' topic_doc pairs loaded')
+
 
 # load word embedding
 model = Word2Vec.load(arg_embedding_file)
@@ -53,8 +74,8 @@ vectors = model.wv
 del model
 vectors.init_sims(True) # normalize the vectors (!), so we can use the dot product as similarity measure
 
-print 'embeddings loaded '
-print 'loading docs ... '
+print('embeddings loaded ')
+print('loading docs ... ')
 
 # load trec corpus
 trec_text_collection_data = [] # text 1 string per doc only, no id
@@ -64,7 +85,7 @@ with open(arg_corpus_file, 'r') as inputFile:
     for line in inputFile:
         count+=1
         if count % 10000==0:
-            print '    ', count,' docs loaded'
+            print('    ', count,' docs loaded')
         parts = line.split(' ', 1)
         trec_corpus[parts[0]] = []
 
@@ -77,7 +98,7 @@ with open(arg_corpus_file, 'r') as inputFile:
 
 trec_text_collection = TextCollection(trec_text_collection_data)
 
-print 'all ', count, ' docs loaded'
+print('all ', count, ' docs loaded')
 
 # load topics file
 trec_topics = {} # topic -> list of query term vector ids
@@ -97,29 +118,28 @@ with open(arg_topics_file, 'r') as inputFile:
         if len(trec_topics[parts[0]]) > max_topic_word_count:
             max_topic_word_count = len(trec_topics[parts[0]])
 
-print 'all ', len(trec_topics), ' topics loaded'
+print('all ', len(trec_topics), ' topics loaded')
 
-# load pre-ranked file
-pre_ranked_per_topic = [] # (topic, doc id, score)
-with open(arg_preranked_file, 'r') as inputFile:
-    for line in inputFile:
-        parts = line.split()
-        pre_ranked_per_topic.append((parts[0], parts[2].strip(), parts[4].strip()))
 
-print 'all ', len(pre_ranked_per_topic), ' pre-ranked topics loaded'
-
-print 'creating histograms'
+print('creating histograms')
 count = 0
 # create histograms for every query term <-> doc term
 # based on pairs from pre-ranked file, using the similarities of the wordembedding
 
 # histogram file format: topicId DocId prerankscore numberOfTopicWords(N) idf1 idf2 ... idfN <hist1> <hist2> ... <histN>
-with open('../data/topic_corpus_histogram_'+str(arg_bin_size)+'.txt', 'w') as outputFile:
+with open('../data/'+arg_qrel_or_preranked+'_histogram_'+str(arg_bin_size)+'.txt', 'w') as outputFile:
 
-    for topic, doc, score in pre_ranked_per_topic:
+    for topic, doc, score in topic_doc_pairs:
             count += 1
             if count % 10000 == 0:
-                print '    ', count, ' ranked docs processed'
+                print('    ', count, ' ranked docs processed')
+
+            if doc not in trec_corpus:
+                print('skipping doc (not in corpus): '+ doc)
+                continue
+            if topic not in trec_topics:
+                print('skipping topic (not in corpus): ' + doc)
+                continue
 
             # get the word embedding ids
             topic_word_ids = trec_topics[topic]
@@ -143,5 +163,5 @@ with open('../data/topic_corpus_histogram_'+str(arg_bin_size)+'.txt', 'w') as ou
             outputFile.write('\n')
             outputFile.flush()
 
-print 'Completed after (seconds): ', timeit.default_timer() - start_time
-print 'Max topic words: ',max_topic_word_count
+print('Completed after (seconds): ', timeit.default_timer() - start_time)
+print('Max topic words: ', max_topic_word_count)

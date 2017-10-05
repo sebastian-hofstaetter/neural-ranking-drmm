@@ -146,3 +146,8 @@ data/topics.robust04.stemmed.txt
 data/topic_corpus_histogram_30.txt
 data/5-folds/**
 neural-ranking/tensorboard-logs/
+data/prerank_histogram_30.txt
+data/qrel_histogram_30.txt
+data/robust04.qrels.txt
+neural-ranking/models/
+neural-ranking/result/
