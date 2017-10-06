@@ -8,7 +8,7 @@ Some code is taken from [MatchZoo](https://github.com/faneshion/MatchZoo) (refer
 
 ## Table of Contents
 
-- **Preprocessing**: Contains all preprocessing code (starting from raw TREC data) to create all input files for the neural ranking model (this includes generating the histogram, idf informations for pre-ranked topic - doc pairs)
+- **Preprocessing**: Contains all preprocessing code (starting from raw TREC data) to create all input files for the neural ranking model (this includes generating the histogram, idf informations). See the [peprocessing Readme](preprocessing/README.md) for more.
 
 - **Neural Ranking**: Contains the neural ranking model
 
