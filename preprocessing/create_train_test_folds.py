@@ -93,8 +93,12 @@ def create_1_0_pairs(topics):
 
     for topic in topics:
         for positive in qrels_doc_pairs[topic][0]:
+            i=1
             for negative in qrels_doc_pairs[topic][1]:
                 lines.append(topic+' '+positive+' '+negative+'\n')
+                i+=1
+                if i > 25:
+                    break
 
     print('\t got  ',len(lines),'train pairs')
 

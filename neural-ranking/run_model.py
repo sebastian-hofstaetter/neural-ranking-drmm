@@ -24,7 +24,7 @@ test_file_histogram = sys.argv[5]
 # build and train model
 #
 model = build_keras_model()
-model.summary()
+#model.summary()
 model.compile(loss=rank_hinge_loss, optimizer='adam') # adam
 #plot_model(model, to_file='model.png', show_shapes=True)
 
@@ -41,11 +41,11 @@ train_input, train_labels = get_keras_train_input(train_file, train_file_histogr
 if not os.path.exists('models/'):
     os.makedirs('models/')
 
-c1 = ModelCheckpoint(filepath='/models/temp_'+run_name+'.hdf5', verbose=1, save_best_only=True)
+#c1 = ModelCheckpoint(filepath='models/temp_'+run_name+'.hdf5', verbose=1, save_best_only=False)
 
 
 
-model.fit(train_input, train_labels, batch_size=10, verbose=2, shuffle=False, epochs=30, callbacks=[c1])
+model.fit(train_input, train_labels, batch_size=10, verbose=2, shuffle=False, epochs=30)#, callbacks=[c1])
 
 
 model.save_weights('models/'+run_name+'.weights')

@@ -18,7 +18,7 @@ def get_keras_train_input(pair_file, histogram_file):
             parts = line.strip().split()
             topic_rel_nonrel.append((parts[0], parts[1], parts[2]))
 
-            #if len(topic_rel_nonrel) == 50000:
+            #if len(topic_rel_nonrel) == 100000:
             #    break
 
     print('loaded ' + str(len(topic_rel_nonrel)) + ' qrel pair entries')
@@ -43,7 +43,7 @@ def get_keras_train_input(pair_file, histogram_file):
     labels[::2] = 1
 
     i_input = 0
-
+    skipped_count = 0
     #
     # for every line here create 2 numpy lines, first line is relevant doc, second line is non_relevant
     #
@@ -66,6 +66,12 @@ def get_keras_train_input(pair_file, histogram_file):
             # idf
             idf_input[i_output] = topic_rel_data[1]  # np.ones((5,1),dtype=np.float32) #
             idf_input[i_output + 1] = topic_nonrel_data[1]  # np.zeros((5,1),dtype=np.float32) #
+        else:
+            skipped_count += 1
+
+    print("idf_input:",idf_input.shape)
+    print("histogram_input:",histogram_input.shape)
+    print("skipped_count:",skipped_count)
 
     return {'query': idf_input, 'doc': histogram_input}, labels
 
@@ -83,7 +89,7 @@ def get_keras_test_input(preranked_file, histogram_file):
 
     print('loaded ' + str(len(topic_prerank)) + ' prerank entries')
 
-    histogram_data = load_histogram_data(histogram_file)
+    histogram_data, histogram_count = load_histogram_data(histogram_file)
 
     #
     # create numpy arrays
@@ -98,6 +104,7 @@ def get_keras_test_input(preranked_file, histogram_file):
     idf_input = np.zeros((data_count, 5, 1), dtype=np.float32)
 
     i_input = 0
+    skipped_count=0
 
     #
     # for every line here create 2 numpy lines, first line is relevant doc, second line is non_relevant
@@ -118,6 +125,12 @@ def get_keras_test_input(preranked_file, histogram_file):
 
             # idf
             idf_input[i_output] = topic_rel_data[1]  # np.ones((5,1),dtype=np.float32) #
+        else:
+            skipped_count += 1
+
+    print("idf_input:",idf_input.shape)
+    print("histogram_input:",histogram_input.shape)
+    print("skipped_count:",skipped_count)
 
     return {'query': idf_input, 'doc': histogram_input}, topic_prerank
 
