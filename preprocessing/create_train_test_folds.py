@@ -9,6 +9,7 @@
 
 import sys
 import os
+from random import randint
 
 # make sure the argument is good (0 = the python file, 1 the actual argument)
 if len(sys.argv) < 3:
@@ -93,12 +94,14 @@ def create_1_0_pairs(topics):
 
     for topic in topics:
         for positive in qrels_doc_pairs[topic][0]:
-            i=1
-            for negative in qrels_doc_pairs[topic][1]:
-                lines.append(topic+' '+positive+' '+negative+'\n')
-                i+=1
-                if i > 25:
-                    break
+            i = randint(0,len(qrels_doc_pairs[topic][1])-1)
+            lines.append(topic + ' ' + positive + ' ' + qrels_doc_pairs[topic][1][i] + '\n')
+            #i=1
+            #for negative in qrels_doc_pairs[topic][1]:
+            #    lines.append(topic+' '+positive+' '+negative+'\n')
+            #    i+=1
+            #    if i > 25:
+            #        break
 
     print('\t got  ',len(lines),'train pairs')
 

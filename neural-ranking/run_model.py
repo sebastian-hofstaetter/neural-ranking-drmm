@@ -45,7 +45,7 @@ if not os.path.exists('models/'):
 
 
 
-model.fit(train_input, train_labels, batch_size=10, verbose=2, shuffle=False, epochs=30)#, callbacks=[c1])
+model.fit(train_input, train_labels, batch_size=10, verbose=2, shuffle=False, epochs=100)#, callbacks=[c1])
 
 
 model.save_weights('models/'+run_name+'.weights')
