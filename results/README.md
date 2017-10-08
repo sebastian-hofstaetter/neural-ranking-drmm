@@ -1,5 +1,19 @@
 # Experiments
 
+### #Grissom
+
+**Commit**: 1cb92b9305a214e438e0610634d9dcbcc617120c
+
+**Goal**: Fix errors
+     
+**Training**: Trained 5-fold cross-validation for 100 epochs (training loss flattened at 0.6)
+
+**Result**: MAP Robust04 (re-rank multiply): **0.2661** (The goal was to reach 0.279) But it is better than the baseline language model result of 0.260 
+MAP Robust04 (plain neural result): **0.2460** Better than before 
+
+**Notes**:
+ - fix the remaining oov words 
+ 
 ### #Schirra
 
 **Commit:** 84d899d4aa23e432f4b4d08b1342d12337a9b4db
